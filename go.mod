@@ -1,4 +1,4 @@
-module github.com/jmank88/ethcurl
+module github.com/jmank88/curl
 
 go 1.19
 
