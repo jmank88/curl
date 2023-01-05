@@ -2,6 +2,11 @@
 
 CLI to simplify Ethereum JSONRPC over `curl`.
 
+## Features
+
+- Autocomplete
+- Hidden JSONRPC
+
 ## Install
 
 `go install github.com/jmank88/curl/cmd/curleth`
@@ -10,13 +15,28 @@ CLI to simplify Ethereum JSONRPC over `curl`.
 
 `curleth -install`
 
-## Run
+## How to use
+
+`curleth (eth|net|web3) (method) [args...] [url]`
+
+### Environment
+
+- `CURLETH`: can be used instead of passing `url` as the last argument.
+
+### Flags
+- `-install`: Install completion for curleth command
+- `-uninstall`: Uninstall completion for curleth command
+- `-y`: Don't prompt user for typing 'yes' when installing completion
+- `-n`: Print command without running
+- `-v`: Verbose logs
+- `-x`: Print command that is run
+
+## Example
 
 ```bash
 $ export CURLETH=https://rpc.gochain.io 
 
 $ curleth eth getBlockByNumber latest false | jq
-> curl -s -d {"id":"5577006791947779410","jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",false]} -H Content-Type: application/json -X POST https://rpc.gochain.io
 {
   "difficulty": "0x12",
   "extraData": "0x46696e7320417474616368656400000000000000000000000000000000000000",
@@ -47,7 +67,6 @@ $ curleth -x eth getBalance 0xEd7F2e81B0264177e0df8f275f97Fd74Fa51A896 latest
 > curl -s -d {"id":"5577006791947779410","jsonrpc":"2.0","method":"eth_getBalance","params":["0xEd7F2e81B0264177e0df8f275f97Fd74Fa51A896","latest"]} -H Content-Type: application/json -X POST https://rpc.gochain.io
 0x3da15d8c524996eb8eca
 
-$ curleth -x eth getTransactionCount 0xEd7F2e81B0264177e0df8f275f97Fd74Fa51A896 latest
-> curl -s -d {"id":"5577006791947779410","jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0xEd7F2e81B0264177e0df8f275f97Fd74Fa51A896","latest"]} -H Content-Type: application/json -X POST https://rpc.gochain.io
+$ curleth eth getTransactionCount 0xEd7F2e81B0264177e0df8f275f97Fd74Fa51A896 latest
 0xf
 ```

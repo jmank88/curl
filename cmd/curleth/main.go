@@ -21,9 +21,9 @@ const env = "CURLETH"
 var cfg curl.Config
 
 func init() {
-	flag.BoolVar(&cfg.Cmds, "x", false, "print command that is run")
-	flag.BoolVar(&cfg.Nop, "n", false, "print command without running")
-	flag.BoolVar(&cfg.Verbose, "v", false, "verbose logs")
+	flag.BoolVar(&cfg.Cmds, "x", false, "Print command that is run")
+	flag.BoolVar(&cfg.Nop, "n", false, "Print command without running")
+	flag.BoolVar(&cfg.Verbose, "v", false, "Verbose logs")
 }
 
 var cmd = complete.Command{
@@ -98,6 +98,15 @@ var cmd = complete.Command{
 }
 
 func main() {
+	flag.Usage = func() {
+		out := flag.CommandLine.Output()
+		fmt.Fprintln(out, "Usage:")
+		fmt.Fprintln(out, "  curleth (eth|net|web3) (method) [args...] [url]")
+		fmt.Fprintln(out, "Environment:")
+		fmt.Fprintln(out, "  CURLETH - set to omit url arg")
+		fmt.Fprintln(out, "Flags:")
+		flag.CommandLine.PrintDefaults()
+	}
 	if complete.New(os.Args[0], cmd).Run() {
 		return // autocompleted
 	}
