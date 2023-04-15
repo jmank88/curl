@@ -11,17 +11,19 @@ import (
 )
 
 type Config struct {
-	Cmds    bool // Print command that is executed.
+	Cmds    bool // Print command. Redundant with Nop or Verbose.
 	Nop     bool // Print command without running.
 	Verbose bool // Verbose logs.
 
 	Stderr io.Writer
 }
 
+// Post calls Config.Post with the zero value defaults.
 func Post(ctx context.Context, url string, data []byte, args ...string) ([]byte, error) {
 	return Config{}.Post(ctx, url, data, args...)
 }
 
+// Post constructs a curl command to POST data to url using args, and executes it, unless Config.Nop is true.
 func (c Config) Post(ctx context.Context, url string, data []byte, args ...string) ([]byte, error) {
 	if c.Stderr == nil {
 		c.Stderr = os.Stderr
@@ -50,11 +52,12 @@ func (c Config) Post(ctx context.Context, url string, data []byte, args ...strin
 	return b, nil
 }
 
-// PostJSON calls Post with req marshalled as JSON, and unmarshalls in to resp.
+// PostJSON calls Config.PostJSON with the zero value defaults.
 func PostJSON(ctx context.Context, url string, req, resp any) error {
 	return Config{}.PostJSON(ctx, url, req, resp)
 }
 
+// PostJSON calls Post with req marshalled as JSON, and unmarshalls in to resp.
 func (c Config) PostJSON(ctx context.Context, url string, req, resp any) error {
 	reqB, err := json.Marshal(req)
 	if err != nil {

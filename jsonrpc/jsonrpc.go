@@ -10,6 +10,8 @@ import (
 	"github.com/jmank88/curl"
 )
 
+// Do POSTs a request and returns the raw result bytes, or an error.
+// Responses which contain errors will be of the type *Error.
 func Do(ctx context.Context, c curl.Config, url string, method string, params ...any) ([]byte, error) {
 	var resp Response
 	err := c.PostJSON(ctx, url, Request{Method: method, Params: params}, &resp)
@@ -44,28 +46,32 @@ type Response struct {
 	Error   *Error          `json:"error"`
 }
 
+// Error represents a jsonrpc error, and formats with full details and a code description.
 type Error struct {
 	Code    int             `json:"code"`
 	Message string          `json:"message"`
 	Data    json.RawMessage `json:"data"`
 }
 
+// Error returns an error string of the form:
+//
+//	jsonrpc error: <code> (<description>): <message>[: data]
 func (e *Error) Error() string {
 	desc := "Unrecognized error"
 	switch e.Code {
 	case -32700:
-		desc = "parse error"
+		desc = "Parse error"
 	case -32600:
-		desc = "invalid Request"
+		desc = "Invalid Request"
 	case -32601:
-		desc = "method not found"
+		desc = "Method not found"
 	case -32602:
-		desc = "invalid params"
+		desc = "Invalid params"
 	case -32603:
-		desc = "internal error"
+		desc = "Internal error"
 	default:
 		if -32000 > e.Code && e.Code > -32099 {
-			desc = "server error"
+			desc = "Server error"
 		}
 	}
 

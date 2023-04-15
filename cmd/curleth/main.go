@@ -21,16 +21,16 @@ const env = "CURLETH"
 var cfg curl.Config
 
 func init() {
-	flag.BoolVar(&cfg.Cmds, "x", false, "Print command that is run")
+	flag.BoolVar(&cfg.Cmds, "x", false, "Print command")
 	flag.BoolVar(&cfg.Nop, "n", false, "Print command without running")
 	flag.BoolVar(&cfg.Verbose, "v", false, "Verbose logs")
 }
 
 var cmd = complete.Command{
 	GlobalFlags: map[string]complete.Predictor{
-		"-v": complete.PredictNothing,
-		"-n": complete.PredictNothing,
 		"-x": complete.PredictNothing,
+		"-n": complete.PredictNothing,
+		"-v": complete.PredictNothing,
 	},
 	Sub: map[string]complete.Command{
 		"eth": {Sub: map[string]complete.Command{
