@@ -22,6 +22,7 @@ var cfg jsonrpc.Config
 func init() {
 	flag.BoolVar(&cfg.Cmds, "x", false, "Print command")
 	flag.BoolVar(&cfg.Nop, "n", false, "Print command without running")
+	flag.BoolVar(&cfg.Pretty, "p", false, "Pretty JSON formatting")
 	flag.BoolVar(&cfg.Verbose, "v", false, "Verbose logs")
 	flag.IntVar(&cfg.ID, "id", -1, "JSONRPC ID - random if < 0")
 }
@@ -30,6 +31,7 @@ var cmd = complete.Command{
 	GlobalFlags: map[string]complete.Predictor{
 		"-x":  complete.PredictNothing,
 		"-n":  complete.PredictNothing,
+		"-p":  complete.PredictNothing,
 		"-v":  complete.PredictNothing,
 		"-id": complete.PredictNothing,
 	},

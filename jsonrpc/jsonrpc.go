@@ -12,11 +12,11 @@ import (
 type Config struct {
 	curl.Config
 
-	ID int // JSONRPC ID - random if < 0
+	ID int // JSONRPC ID - random if < 0.
 }
 
 func (c Config) Request(method string, params ...any) (req Request) {
-
+	req.Version = "2.0"
 	if c.ID < 0 {
 		req.ID = rand.Int()
 	} else {
@@ -42,15 +42,11 @@ func (c Config) Do(ctx context.Context, url string, method string, params ...any
 }
 
 type Request struct {
-	Version Version2 `json:"jsonrpc"`
-	ID      int      `json:"id"`
-	Method  string   `json:"method"`
-	Params  []any    `json:"params"`
+	Version string `json:"jsonrpc"`
+	ID      int    `json:"id"`
+	Method  string `json:"method"`
+	Params  []any  `json:"params"`
 }
-
-type Version2 string
-
-func (Version2) MarshalJSON() ([]byte, error) { return []byte("2.0"), nil }
 
 type Response struct {
 	Version string          `json:"jsonrpc"`

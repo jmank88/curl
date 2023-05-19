@@ -1,6 +1,7 @@
 package curl
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -13,9 +14,10 @@ import (
 type Config struct {
 	Cmds    bool // Print command. Redundant with Nop or Verbose.
 	Nop     bool // Print command without running.
+	Pretty  bool // Pretty JSON formatting.
 	Verbose bool // Verbose logs.
 
-	Stderr io.Writer
+	Stderr io.Writer // Where to write error logs.
 }
 
 // Post calls Config.Post with the zero value defaults.
@@ -59,7 +61,7 @@ func PostJSON(ctx context.Context, url string, req, resp any) error {
 
 // PostJSON calls Post with req marshalled as JSON, and unmarshalls in to resp.
 func (c Config) PostJSON(ctx context.Context, url string, req, resp any) error {
-	reqB, err := json.Marshal(req)
+	reqB, err := c.marshalJSON(req)
 	if err != nil {
 		return fmt.Errorf("failed to marshal json: %w", err)
 	}
@@ -73,4 +75,17 @@ func (c Config) PostJSON(ctx context.Context, url string, req, resp any) error {
 		}
 	}
 	return nil
+}
+
+func (c Config) marshalJSON(req any) ([]byte, error) {
+	var b bytes.Buffer
+	e := json.NewEncoder(&b)
+	if c.Pretty {
+		e.SetIndent("", "  ")
+	}
+	err := e.Encode(req)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.TrimSuffix(b.Bytes(), []byte("\n")), nil
 }
