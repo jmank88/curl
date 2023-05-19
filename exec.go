@@ -64,8 +64,13 @@ func (c Config) PostJSON(ctx context.Context, url string, req, resp any) error {
 		return fmt.Errorf("failed to marshal json: %w", err)
 	}
 	respB, err := c.Post(ctx, url, reqB, "-H", "Content-Type: application/json")
-	if err := json.Unmarshal(respB, &resp); err != nil {
-		return fmt.Errorf("failed to unmarshal response: %w", err)
+	if err != nil {
+		return fmt.Errorf("failed to post: %w", err)
+	}
+	if !c.Nop {
+		if err := json.Unmarshal(respB, &resp); err != nil {
+			return fmt.Errorf("failed to unmarshal response: %w: %s", err, string(respB))
+		}
 	}
 	return nil
 }

@@ -1,0 +1,6 @@
+env CURLETH=https://rpc.gochain.io
+exec curleth -n -id 1 eth getBlockByNumber 28349565 false
+cmp stderr err.txt
+
+-- err.txt --
+curl -H Content-Type: application/json -s -X POST -d {"jsonrpc":2.0,"id":1,"method":"eth_getBlockByNumber","params":["0x1b0947d",false]} https://rpc.gochain.io

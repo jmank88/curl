@@ -1,0 +1,6 @@
+env CURLETH=https://rpc.gochain.io
+exec curleth -n -id 1 eth getBalance 0xEd7F2e81B0264177e0df8f275f97Fd74Fa51A896 28349565
+cmp stderr err.txt
+
+-- err.txt --
+curl -H Content-Type: application/json -s -X POST -d {"jsonrpc":2.0,"id":1,"method":"eth_getBalance","params":["0xEd7F2e81B0264177e0df8f275f97Fd74Fa51A896","0x1b0947d"]} https://rpc.gochain.io

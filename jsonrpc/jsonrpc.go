@@ -5,16 +5,33 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
-	"strconv"
 
 	"github.com/jmank88/curl"
 )
 
+type Config struct {
+	curl.Config
+
+	ID int // JSONRPC ID - random if < 0
+}
+
+func (c Config) Request(method string, params ...any) (req Request) {
+
+	if c.ID < 0 {
+		req.ID = rand.Int()
+	} else {
+		req.ID = c.ID
+	}
+	req.Method = method
+	req.Params = params
+	return
+}
+
 // Do POSTs a request and returns the raw result bytes, or an error.
 // Responses which contain errors will be of the type *Error.
-func Do(ctx context.Context, c curl.Config, url string, method string, params ...any) ([]byte, error) {
+func (c Config) Do(ctx context.Context, url string, method string, params ...any) ([]byte, error) {
 	var resp Response
-	err := c.PostJSON(ctx, url, Request{Method: method, Params: params}, &resp)
+	err := c.PostJSON(ctx, url, c.Request(method, params...), &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +43,7 @@ func Do(ctx context.Context, c curl.Config, url string, method string, params ..
 
 type Request struct {
 	Version Version2 `json:"jsonrpc"`
-	ID      RandID   `json:"id"`
+	ID      int      `json:"id"`
 	Method  string   `json:"method"`
 	Params  []any    `json:"params"`
 }
@@ -34,10 +51,6 @@ type Request struct {
 type Version2 string
 
 func (Version2) MarshalJSON() ([]byte, error) { return []byte("2.0"), nil }
-
-type RandID int
-
-func (RandID) MarshalJSON() ([]byte, error) { return []byte(strconv.Itoa(rand.Int())), nil }
 
 type Response struct {
 	Version string          `json:"jsonrpc"`

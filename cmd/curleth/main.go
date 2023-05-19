@@ -12,25 +12,26 @@ import (
 
 	"github.com/posener/complete"
 
-	"github.com/jmank88/curl"
 	"github.com/jmank88/curl/jsonrpc"
 )
 
 const env = "CURLETH"
 
-var cfg curl.Config
+var cfg jsonrpc.Config
 
 func init() {
 	flag.BoolVar(&cfg.Cmds, "x", false, "Print command")
 	flag.BoolVar(&cfg.Nop, "n", false, "Print command without running")
 	flag.BoolVar(&cfg.Verbose, "v", false, "Verbose logs")
+	flag.IntVar(&cfg.ID, "id", -1, "JSONRPC ID - random if < 0")
 }
 
 var cmd = complete.Command{
 	GlobalFlags: map[string]complete.Predictor{
-		"-x": complete.PredictNothing,
-		"-n": complete.PredictNothing,
-		"-v": complete.PredictNothing,
+		"-x":  complete.PredictNothing,
+		"-n":  complete.PredictNothing,
+		"-v":  complete.PredictNothing,
+		"-id": complete.PredictNothing,
 	},
 	Sub: map[string]complete.Command{
 		"eth": {Sub: map[string]complete.Command{
@@ -98,6 +99,10 @@ var cmd = complete.Command{
 }
 
 func main() {
+	os.Exit(Main())
+}
+
+func Main() int {
 	flag.Usage = func() {
 		out := flag.CommandLine.Output()
 		fmt.Fprintln(out, "Usage:")
@@ -108,7 +113,7 @@ func main() {
 		flag.CommandLine.PrintDefaults()
 	}
 	if complete.New(os.Args[0], cmd).Run() {
-		return // autocompleted
+		return 0 // autocompleted
 	}
 
 	need := 2
@@ -123,7 +128,8 @@ func main() {
 		if !envSet {
 			s += " [url]"
 		}
-		log.Fatalf("Too few arguments %d, need at least %d: %s\n", l, need, s)
+		log.Printf("Too few arguments %d, need at least %d: %s\n", l, need, s)
+		return 1
 	}
 	method := args[0] + "_" + args[1]
 	args = args[2:]
@@ -132,15 +138,17 @@ func main() {
 		args = args[:len(args)-1]
 	}
 
-	resp, err := jsonrpc.Do(context.Background(), cfg, url, method, typedParams(args)...)
+	resp, err := cfg.Do(context.Background(), url, method, typedParams(args)...)
 	if err != nil {
 		if exit := new(exec.ExitError); errors.As(err, &exit) {
 			log.Println(exit.String())
-			os.Exit(exit.ExitCode())
+			return exit.ExitCode()
 		}
-		log.Fatalln(err)
+		log.Println(err)
+		return 1
 	}
 	fmt.Println(string(resp))
+	return 0
 }
 
 func typedParams(params []string) []any {
